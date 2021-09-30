@@ -1,44 +1,44 @@
 from gl import Raytracer, V3, _color
-from Obj import Obj, Texture
+from Obj import *
 
-from figure import Sphere, Material
+from figure import *
 
-width = 512
-height = 512
+width = 720
+height = 540
 
-brick = Material(diffuse = _color(0.8,0.25,0.25))
-stone = Material(diffuse = _color(0.4,0.4,0.4))
-grass = Material(diffuse = _color(0.4,1,0))
+brick = Material(diffuse = _color(0.8,0.25,0.25),spec = 64)
+stone = Material(diffuse = _color(0.4,0.4,0.4), spec = 64)
+
 wood = Material(diffuse = _color(0.5,0.5,0.1))
 snow = Material(diffuse= _color(0.9,0.9,0.9))
-nara = Material(diffuse=_color(0.9,0.3,0))
-black = Material(diffuse=_color(0,0,0))
-yellow = Material(diffuse=_color(0.95,0.92,0.03))
+grass = Material(diffuse = _color(0.3,0.5,0.3), spec = 128)
+
+gold = Material(diffuse = (1,0.8,0), spec = 32, matType = REFLECTIVE)
+mirror = Material(spec = 128, matType = REFLECTIVE)
+
+water = Material(spec = 64, ior = 1.33, matType = TRANSPARENT)
+glass = Material(spec = 64, ior = 1.5, matType = TRANSPARENT)
 
 
 
 rtx = Raytracer(width,height)
+rtx.envmap = EnvMap('evening_meadow_4k.bmp')
 
-rtx.scene.append( Sphere(V3(0,3.5,-10), 1.5, snow))
-rtx.scene.append( Sphere(V3(0,0.5,-10), 2, snow))
-rtx.scene.append( Sphere(V3(0,-2.5,-10), 2.5, snow))
-rtx.scene.append(Sphere(V3(2,-4.5,-10),1,snow))
-rtx.scene.append(Sphere(V3(-2,-4.5,-10),1,snow))
+rtx.ambLight = AmbientLight(strength = 0.1)
+rtx.dirLight = DirectionalLight(direction = V3(1,-1,-2), intensity = 0.5)
+rtx.pointLights.append(PointLight(position = V3(0,2,0), intensity = 0.5))
 
-rtx.scene.append(Sphere(V3(0,2.05,-6),0.2,nara))
+#Opacas
+rtx.scene.append(Sphere(V3(-4,0,-8),1,snow))
+rtx.scene.append(Sphere(V3(-4,-3,-8),1,wood))
 
-rtx.scene.append(Sphere(V3(-0.3,2.5,-6),0.1,black))
-rtx.scene.append(Sphere(V3(0.3,2.5,-6),0.1,black))
+#reflectivas
+rtx.scene.append(Sphere(V3(0,0,-8),1,gold))
+rtx.scene.append(Sphere(V3(0,-3,-8),1,mirror))
 
-rtx.scene.append(Sphere(V3(0,-1.6,-6),0.2, yellow))
-rtx.scene.append(Sphere(V3(0,-0.6,-6),0.2, yellow))
-rtx.scene.append(Sphere(V3(0,0.4,-6),0.2, yellow))
-
-rtx.scene.append(Sphere(V3(0.4,1.7,-6),0.05,black))
-rtx.scene.append(Sphere(V3(0.2,1.5,-6),0.05,black))
-rtx.scene.append(Sphere(V3(-0.2,1.5,-6),0.05,black))
-rtx.scene.append(Sphere(V3(-0.4,1.7,-6),0.05,black))
-
+#transparentes
+rtx.scene.append(Sphere(V3(4,0,-8),1,water))
+rtx.scene.append(Sphere(V3(4,-3,-8),1,glass))
 
 rtx.glRender()
 
