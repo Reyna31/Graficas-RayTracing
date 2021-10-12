@@ -1,7 +1,9 @@
 import struct
 from collections import namedtuple
+
 from Obj import _color
 
+import mmath as mt
 import numpy as np
 from numpy import tan
 
@@ -47,10 +49,10 @@ def baryCoords(A, B, C, P):
     return u, v, w
 
 def reflectVector(normal,dirVector):
-    reflect = 2 * np.dot (normal, dirVector)
-    reflect = np.multiply (reflect, normal)
-    reflect = np.subtract (reflect, dirVector)
-    reflect = reflect / np.linalg.norm (reflect)
+    reflect = 2 * np.dot(normal, dirVector)
+    reflect = np.multiply(reflect, normal)
+    reflect = np.subtract(reflect, dirVector)
+    reflect = mt.norm(reflect)
     return reflect
 
 def refractVector(normal, dirVector, ior):
@@ -321,12 +323,14 @@ class Raytracer(object):
         if material.matType == OPAQUE:
             finalColor = pLightColor + ambientColor + dirLightColor + finalSpecColor
 
+            if material.texture and intersect.texCoords:
+                texColor = material.texture.getColor(intersect.texCoords[0], intersect.texCoords[1])
+                finalColor *= np.array(texColor)
+
         elif material.matType == REFLECTIVE:
             reflect = reflectVector (intersect.normal, np.array (dir) * -1)
             reflectColor = self.cast_ray (intersect.point, reflect, intersect.sceneObject, recursion + 1)
-            reflectColor = np.array ([reflectColor [0],
-                                      reflectColor [1],
-                                      reflectColor [2]])
+            reflectColor = np.array (reflectColor)
 
             finalColor = reflectColor + finalSpecColor
 
